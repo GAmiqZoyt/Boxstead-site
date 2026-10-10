@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Boxstead – Dots and Boxes Strategy Game for Android</title>
+<meta name="description" content="Boxstead is a dots-and-boxes strategy game. Draw lines, claim boxes and outsmart a friend, a bot or players worldwide. Pass &amp; play, online matches, achievements. By Cortexlab Studios.">
+<meta name="theme-color" content="#1B1F2B">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Boxstead – Draw the streets. Claim the block.">
+<meta property="og:description" content="A clean dots-and-boxes strategy game: pass &amp; play, bot opponents and online matchmaking.">
+<meta property="og:image" content="/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap">
+  <a class="brand" href="/"><img src="/favicon.svg" alt="" width="30" height="30">Boxstead</a>
+  <nav aria-label="Main">
+    <a href="/#how">How to play</a>
+    <a href="/#features">Features</a>
+    <a href="/privacy/">Privacy policy</a>
+    <a href="/delete-account/">Delete account</a>
+  </nav>
+</div></header>
+
+<main id="main">
+<section class="hero"><div class="wrap">
+  <div>
+    <span class="badge">Strategy · Android</span>
+    <h1>Draw the streets.<br><em>Claim the block.</em></h1>
+    <p class="lead">Boxstead is a modern dots-and-boxes game. Take turns drawing lines, close a box to claim it and move again. Play a friend on one phone, take on a bot, or match with players worldwide.</p>
+    <div class="cta">
+      <!-- When live, replace with: <a class="btn" href="https://play.google.com/store/apps/details?id=com.cortexlabstudios.boxstead">Get it on Google Play</a> -->
+      <span class="btn" aria-disabled="true">Coming soon to Google Play</span>
+      <a class="btn ghost" href="#demo">Try it below</a>
+    </div>
+  </div>
+  <div class="demo" id="demo">
+    <div class="score"><span class="you">★ You: <span id="sy">0</span></span><span class="bot">● Bot: <span id="sb">0</span></span></div>
+    <svg id="board" viewBox="0 0 300 300" role="img" aria-label="Playable dots and boxes board"></svg>
+    <div class="status" id="status" aria-live="polite">Your move – tap between two dots.</div>
+    <button class="btn" id="again" type="button">Play again</button>
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <h2>How to play</h2>
+  <p class="sub">Easy to learn in a minute. Hard to master.</p>
+  <ol class="steps">
+    <li><h3>Draw a line</h3><p>Tap the gap between two neighbouring dots to connect them.</p></li>
+    <li><h3>Close a box</h3><p>Add the fourth side of a square and it becomes yours.</p></li>
+    <li><h3>Go again</h3><p>Every box you claim earns another turn – chain them for combos.</p></li>
+    <li><h3>Win the grid</h3><p>When every box is taken, the player with the most wins.</p></li>
+  </ol>
+</div></section>
+
+<section id="features"><div class="wrap">
+  <h2>Features</h2>
+  <p class="sub">Everything for a quick break or a long rivalry.</p>
+  <div class="grid">
+    <div class="card"><h3>Pass &amp; play</h3><p>Two players, one phone. No account needed.</p></div>
+    <div class="card"><h3>Play the bot</h3><p>Practice against a computer opponent that spots captures and avoids giving away boxes.</p></div>
+    <div class="card"><h3>Online matches</h3><p>Quick-match with players around the world in real time.</p></div>
+    <div class="card"><h3>Best of 3 or 5</h3><p>Play single games or full series with a result screen and rematch.</p></div>
+    <div class="card"><h3>Custom board sizes</h3><p>From fast small grids to big, long-thinking boards.</p></div>
+    <div class="card"><h3>Achievements &amp; sharing</h3><p>Unlock milestones and share your winning board as an image.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Board themes</h2>
+  <p class="sub">Unlock new looks as you win matches.</p>
+  <div class="themes"><span><b>Classic</b> · from the start</span><span><b>Neon</b> · 5 matches</span><span><b>Retro</b> · 15 matches</span><span><b>Frost</b> · 30 matches</span></div>
+</div></section>
+</main>
+
+<footer class="site-footer"><div class="wrap">
+  <div>© 2026 Cortexlab Studios · Boxstead</div>
+  <nav aria-label="Footer">
+    <a href="/privacy/">Privacy policy</a>
+    <a href="/delete-account/">Delete account</a>
+    <a href="mailto:fahimgul338@gmail.com">Contact</a>
+  </nav>
+</div></footer>
+
+<script>
+(function(){
+  var N=4, S=60, O=30; // 4x4 boxes, spacing 60, offset 30
+  var svg=document.getElementById('board'), NS='http://www.w3.org/2000/svg';
+  var lines, owner, turn, over, busy;
+  function key(t,r,c){return t+r+'_'+c}
+  function allLines(){var a=[],r,c;for(r=0;r<=N;r++)for(c=0;c<N;c++)a.push(['h',r,c]);for(r=0;r<N;r++)for(c=0;c<=N;c++)a.push(['v',r,c]);return a}
+  function sides(r,c){return [key('h',r,c),key('h',r+1,c),key('v',r,c),key('v',r,c+1)]}
+  function count(r,c){return sides(r,c).filter(function(k){return lines[k]}).length}
+  function boxesOf(l){var t=l[0],r=l[1],c=l[2],b=[];
+    if(t==='h'){if(r>0)b.push([r-1,c]);if(r<N)b.push([r,c]);}
+    else{if(c>0)b.push([r,c-1]);if(c<N)b.push([r,c]);}
+    return b}
+  function init(){
+    lines={};owner={};turn='y';over=false;busy=false;
+    var pool=allLines().sort(function(){return Math.random()-.5}),n=0;
+    pool.forEach(function(l){ if(n>=10)return;
+      var ok=boxesOf(l).every(function(b){return count(b[0],b[1])<1});
+      if(ok){lines[key(l[0],l[1],l[2])]=1;n++}
+    });
+    draw();status('Your move – tap between two dots.');
+  }
+  function score(){var y=0,b=0;for(var k in owner){owner[k]==='y'?y++:b++}
+    document.getElementById('sy').textContent=y;document.getElementById('sb').textContent=b;return [y,b]}
+  function status(t){document.getElementById('status').textContent=t}
+  function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e}
+  function draw(){
+    svg.innerHTML='';
+    for(var r=0;r<N;r++)for(var c=0;c<N;c++){var o=owner[r+'_'+c];
+      if(o){var x=O+c*S,y=O+r*S,col=o==='y'?'#FF6B6B':'#4EA8DE';
+        svg.appendChild(el('rect',{x:x+4,y:y+4,width:S-8,height:S-8,fill:col,opacity:.3,rx:6}));
+        var t=el('text',{x:x+S/2,y:y+S/2+6,'text-anchor':'middle','font-size':18,fill:col});t.textContent=o==='y'?'★':'●';svg.appendChild(t)}}
+    allLines().forEach(function(l){
+      var t=l[0],r=l[1],c=l[2],k=key(t,r,c),x1=O+c*S,y1=O+r*S,x2=t==='h'?x1+S:x1,y2=t==='h'?y1:y1+S;
+      if(lines[k]){svg.appendChild(el('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:'#E8B94A','stroke-width':5,'stroke-linecap':'round'}))}
+      else{var h=el('line',{x1:x1,y1:y1,x2:x2,y2:y2,stroke:'transparent','stroke-width':26,style:'cursor:pointer'});
+        h.addEventListener('click',function(){play(l,'y')});svg.appendChild(h);
+        svg.appendChild(el('line',{x1:x1+(t==='h'?8:0),y1:y1+(t==='v'?8:0),x2:x2-(t==='h'?8:0),y2:y2-(t==='v'?8:0),stroke:'#363d52','stroke-width':2,'stroke-dasharray':'2 5','pointer-events':'none'}))}
+    });
+    for(r=0;r<=N;r++)for(c=0;c<=N;c++)svg.appendChild(el('circle',{cx:O+c*S,cy:O+r*S,r:5,fill:'#EDEFF5'}));
+    score();
+  }
+  function play(l,who){
+    if(over||busy||turn!==who)return;
+    var k=key(l[0],l[1],l[2]);if(lines[k])return;
+    lines[k]=1;var got=0;
+    boxesOf(l).forEach(function(b){if(count(b[0],b[1])===4&&!owner[b[0]+'_'+b[1]]){owner[b[0]+'_'+b[1]]=who;got++}});
+    draw();
+    if(Object.keys(owner).length===N*N){over=true;var s=score();
+      status(s[0]>s[1]?'You win! 🎉':s[0]<s[1]?'Bot wins this one.':'It’s a draw.');return}
+    if(!got)turn=who==='y'?'b':'y';
+    if(turn==='b'){busy=true;status('Bot is thinking…');setTimeout(bot,650)}
+    else status('Your move'+(got?' again – nice box!':'.'));
+  }
+  function bot(){
+    busy=false;
+    var open=allLines().filter(function(l){return !lines[key(l[0],l[1],l[2])]});
+    function worst(l){return Math.max.apply(null,boxesOf(l).map(function(b){return count(b[0],b[1])}))}
+    var cap=open.filter(function(l){return worst(l)===3});
+    var pick;
+    if(cap.length)pick=cap[Math.floor(Math.random()*cap.length)];
+    else{var safe=open.filter(function(l){return worst(l)<2});
+      if(safe.length)pick=safe[Math.floor(Math.random()*safe.length)];
+      else{var min=Math.min.apply(null,open.map(function(l){return boxesOf(l).reduce(function(a,b){return a+(count(b[0],b[1])===2?1:0)},0)}));
+        var best=open.filter(function(l){return boxesOf(l).reduce(function(a,b){return a+(count(b[0],b[1])===2?1:0)},0)===min});
+        pick=best[Math.floor(Math.random()*best.length)]}}
+    play(pick,'b');
+  }
+  document.getElementById('again').addEventListener('click',init);
+  init();
+})();
+</script>
+</body>
+</html>

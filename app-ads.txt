@@ -1,0 +1,4 @@
+# Boxstead by Cortexlab Studios - app-ads.txt
+# Paste the seller lines from your LevelPlay (Unity), Unity Ads and Meta Audience Network
+# dashboards below, one per line, then redeploy. Lines starting with # are ignored.
+# Example format:  domain, publisher-id, DIRECT, certification-id
